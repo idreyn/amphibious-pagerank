@@ -1,0 +1,40 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: #EEE;
+    font-family: monospace;
+}
+
+h1 {
+	padding-top: 20px;
+}
+
+#main {
+	width: 600;
+	text-align: center;
+	margin: auto;
+}
+
+#controls {
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	margin: auto;
+	padding: 10px;
+}
+
+#canvas {
+	background: white;
+}
+
+#steps {
+	margin-top: 20px;
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid #000;
+}
+
+#steps td, #steps th {
+	border: 1px solid #000;
+}
