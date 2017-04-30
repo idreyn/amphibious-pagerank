@@ -21,7 +21,7 @@ zzz-watch-build
 zzz-serve
 
 # Built js
-bundle.js
+# bundle.js
 
 # Shhhhh?
 secrets

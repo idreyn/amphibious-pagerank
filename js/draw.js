@@ -38,6 +38,11 @@ function drawPageRank(ctx, pr, step=0, size) {
 			ctx.arc(x, y, nodeSize(i), 0, 2 * Math.PI);
 			ctx.closePath();
 			ctx.fill();
+			ctx.fillStyle = "black";
+			ctx.font = "12pt monospace";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText(String.fromCharCode(65 + i), x, y);
 		}
 	}
 
