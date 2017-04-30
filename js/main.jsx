@@ -87,7 +87,7 @@ class App extends React.Component {
                     <input
                         type="range"
                         min="3"
-                        max="10"
+                        max="8"
                         value={networkSize}
                         onChange={(e) => this.setState({
                             networkSize: parseInt(e.target.value)
