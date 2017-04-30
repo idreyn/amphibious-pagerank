@@ -49,7 +49,7 @@ class PageRank {
 	}
 }
 
-PageRank.findExample = (size, connectivity, minIterations=3, maxIterations=10) => {
+PageRank.findExample = (size, connectivity, minIterations=3, maxIterations=5) => {
 	while (true) {
 		const gr = Graph.getRandom(size, connectivity);
 		const pr = new PageRank(gr);

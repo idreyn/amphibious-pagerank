@@ -437,14 +437,14 @@ var css = "html,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  backg
 const randomColor = require("randomcolor");
 
 const colors = [];
-for (let i = 0; i < 100; i++) {
+for (var i = 0; i < 100; i++) {
 	colors.push(randomColor({
 		luminosity: 'bright',
 		format: 'hex'
 	}));
 }
 
-function drawPageRank(ctx, pr, step = 0, size) {
+function drawPageRank(ctx, pr, step, size) {
 	const web = pr.web;
 	const center = { x: size.x / 2, y: size.y / 2 };
 	const graphRadius = size.x / 3;
@@ -830,7 +830,7 @@ class PageRank {
 	}
 }
 
-PageRank.findExample = (size, connectivity, minIterations = 3, maxIterations = 10) => {
+PageRank.findExample = (size, connectivity, minIterations = 3, maxIterations = 5) => {
 	while (true) {
 		const gr = Graph.getRandom(size, connectivity);
 		const pr = new PageRank(gr);

@@ -1,14 +1,14 @@
 const randomColor = require("randomcolor");
 
 const colors = [];
-for (let i=0; i<100; i++) {
+for (var i=0; i<100; i++) {
 	colors.push(randomColor({
 		luminosity: 'bright',
 		format: 'hex',
 	}));
 }
 
-function drawPageRank(ctx, pr, step=0, size) {
+function drawPageRank(ctx, pr, step, size) {
 	const web = pr.web;
 	const center = {x: size.x / 2, y: size.y / 2};
 	const graphRadius = size.x / 3;
