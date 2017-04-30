@@ -19,6 +19,23 @@ class Graph {
 		}
 	}
 
+	sumRow(i) {
+		return this.matrix[i].reduce((a, b) => a + b);
+	}
+
+	sumColumn(i) {
+		return this.matrix.map((row) => row[i]).reduce((a, b) => a + b);
+	}
+
+	allNodesConnected() {
+		for(let i=0; i<this.size; i++) {
+			if (this.sumRow(i) == 0 && this.sumColumn(i) == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	edgesFrom(i) {
 		return this.matrix[i].filter((x) => x > 0).length;
 	}

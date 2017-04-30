@@ -432,7 +432,7 @@
 }));
 
 },{}],2:[function(require,module,exports){
-var css = "html,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  background-color: #EEE;\n  font-family: monospace;\n}\nh1 {\n  padding-top: 20px;\n}\n#main {\n  width: 600;\n  text-align: center;\n  margin: auto;\n}\n#controls {\n  width: 100%;\n  display: flex;\n  justify-content: space-around;\n  margin: auto;\n  padding: 10px;\n}\n#canvas {\n  background: white;\n}\n#steps {\n  margin-top: 20px;\n  margin-bottom: 20px;\n  width: 100%;\n  border-collapse: collapse;\n  border: 1px solid #000;\n}\n#steps td,\n#steps th {\n  border: 1px solid #000;\n}\n"; (require("browserify-css").createStyle(css, { "href": "css/style.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = "html,\nbody {\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  background-color: #EEE;\n  font-family: monospace;\n}\nh1 {\n  padding-top: 20px;\n}\n#main {\n  width: 600;\n  text-align: center;\n  margin: auto;\n}\n#controls {\n  width: 100%;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  margin: auto;\n  padding: 10px;\n}\n#controls button {\n  margin: 2px;\n}\n#canvas {\n  background: white;\n}\n#steps {\n  margin-top: 20px;\n  margin-bottom: 20px;\n  width: 100%;\n  border-collapse: collapse;\n  border: 1px solid #000;\n}\n#steps td,\n#steps th {\n  border: 1px solid #000;\n}\n"; (require("browserify-css").createStyle(css, { "href": "css/style.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],3:[function(require,module,exports){
 const randomColor = require("randomcolor");
 
@@ -554,6 +554,23 @@ class Graph {
 		}
 	}
 
+	sumRow(i) {
+		return this.matrix[i].reduce((a, b) => a + b);
+	}
+
+	sumColumn(i) {
+		return this.matrix.map(row => row[i]).reduce((a, b) => a + b);
+	}
+
+	allNodesConnected() {
+		for (let i = 0; i < this.size; i++) {
+			if (this.sumRow(i) == 0 && this.sumColumn(i) == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	edgesFrom(i) {
 		return this.matrix[i].filter(x => x > 0).length;
 	}
@@ -588,195 +605,240 @@ const { PageRank } = require("./pagerank.js");
 const { drawPageRank } = require("./draw.js");
 
 class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      canvasSize: 600,
-      pageRank: PageRank.findExample(8, 0.5),
-      pageRankStep: 0,
-      networkSize: 8, connectivity: 0.5
-    };
-  }
-
-  draw() {
-    const { canvasSize, networkSize, connectivity, pageRank, pageRankStep } = this.state;
-    drawPageRank(this.canvas.getContext("2d"), pageRank, pageRankStep, { x: canvasSize, y: canvasSize });
-  }
-
-  componentDidMount() {
-    this.draw();
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if (this.state.networkSize !== nextState.networkSize || this.state.connectivity !== nextState.connectivity) {
-      this.setState({
-        pageRank: PageRank.findExample(nextState.networkSize, nextState.connectivity),
-        pageRankStep: 0
-      });
+    constructor() {
+        super();
+        this.state = {
+            canvasSize: 600,
+            pageRank: PageRank.findExample(8, 0.5),
+            pageRankStep: 0,
+            networkSize: 8, connectivity: 0.5
+        };
     }
-  }
 
-  componentDidUpdate(prevProps, prevState) {
-    this.draw();
-  }
+    draw() {
+        const { canvasSize, networkSize, connectivity, pageRank, pageRankStep } = this.state;
+        drawPageRank(this.canvas.getContext("2d"), pageRank, pageRankStep, { x: canvasSize, y: canvasSize });
+    }
 
-  renderTable() {
-    const { pageRank, pageRankStep } = this.state;
-    return React.createElement(
-      "table",
-      { id: "steps" },
-      React.createElement(
-        "tbody",
-        null,
-        React.createElement(
-          "tr",
-          null,
-          React.createElement(
-            "th",
-            null,
-            React.createElement(
-              "b",
-              null,
-              "Step:"
-            )
-          ),
-          pageRank.initialRanks.map((x, i) => React.createElement(
-            "th",
-            { key: i },
-            "Site " + String.fromCharCode(65 + i)
-          ))
-        ),
-        pageRank.history.slice(0, pageRankStep + 1).map((h, i) => React.createElement(
-          "tr",
-          { key: i },
-          React.createElement(
-            "td",
-            null,
-            i === 0 ? "Start" : "Turn " + i.toString()
-          ),
-          h.map((n, j) => React.createElement(
-            "td",
-            { key: j },
-            n
-          ))
-        ))
-      )
-    );
-  }
+    componentDidMount() {
+        this.draw();
+    }
 
-  render() {
-    const {
-      canvasSize,
-      networkSize,
-      pageRankStep,
-      pageRank,
-      connectivity
-    } = this.state;
-    return React.createElement(
-      "div",
-      { id: "main" },
-      React.createElement(
-        "h1",
-        null,
-        "AmphibzRank visualizer"
-      ),
-      React.createElement(
-        "div",
-        { id: "controls" },
-        React.createElement(
-          "label",
-          null,
-          React.createElement(
-            "div",
-            null,
-            "Network size: ",
-            React.createElement(
-              "b",
-              null,
-              networkSize
-            )
-          ),
-          React.createElement("input", {
-            type: "range",
-            min: "3",
-            max: "8",
-            value: networkSize,
-            onChange: e => this.setState({
-              networkSize: parseInt(e.target.value)
-            })
-          })
-        ),
-        React.createElement(
-          "label",
-          null,
-          React.createElement(
-            "div",
-            null,
-            "Connectivity: ",
-            React.createElement(
-              "b",
-              null,
-              connectivity
-            )
-          ),
-          React.createElement("input", {
-            type: "range",
-            min: "0.1",
-            max: "0.5",
-            step: "0.01",
-            value: connectivity,
-            onChange: e => this.setState({
-              connectivity: parseFloat(e.target.value)
-            })
-          })
-        ),
-        React.createElement(
-          "label",
-          null,
-          React.createElement(
-            "div",
-            null,
-            "Step: ",
-            React.createElement(
-              "b",
-              null,
-              pageRankStep,
-              "/",
-              pageRank.history.length - 1
-            )
-          ),
-          React.createElement("input", {
-            type: "range",
-            min: 0,
-            max: pageRank.history.length - 1,
-            value: pageRankStep,
-            onChange: e => this.setState({
-              pageRankStep: parseFloat(e.target.value)
-            })
-          })
-        )
-      ),
-      React.createElement("canvas", {
-        id: "canvas",
-        width: canvasSize,
-        height: canvasSize,
-        ref: x => {
-          this.canvas = x;
+    componentWillUpdate(nextProps, nextState) {
+        if (this.state.networkSize !== nextState.networkSize || this.state.connectivity !== nextState.connectivity) {
+            this.setState({
+                pageRank: PageRank.findExample(nextState.networkSize, nextState.connectivity),
+                pageRankStep: 0
+            });
         }
-      }),
-      this.renderTable()
-    );
-  }
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        this.draw();
+    }
+
+    renderTable() {
+        const { pageRank, pageRankStep } = this.state;
+        return React.createElement(
+            "table",
+            { id: "steps" },
+            React.createElement(
+                "tbody",
+                null,
+                React.createElement(
+                    "tr",
+                    null,
+                    React.createElement(
+                        "th",
+                        null,
+                        React.createElement(
+                            "b",
+                            null,
+                            "Step:"
+                        )
+                    ),
+                    pageRank.initialRanks.map((x, i) => React.createElement(
+                        "th",
+                        { key: i },
+                        "Site " + String.fromCharCode(65 + i)
+                    ))
+                ),
+                pageRank.history.slice(0, pageRankStep + 1).map((h, i) => React.createElement(
+                    "tr",
+                    { key: i },
+                    React.createElement(
+                        "td",
+                        null,
+                        i === 0 ? "Start" : "Turn " + i.toString()
+                    ),
+                    h.map((n, j) => React.createElement(
+                        "td",
+                        { key: j },
+                        n
+                    ))
+                ))
+            )
+        );
+    }
+
+    render() {
+        const {
+            canvasSize,
+            networkSize,
+            pageRankStep,
+            pageRank,
+            connectivity
+        } = this.state;
+        const lastStep = pageRank.history.length - 1;
+        return React.createElement(
+            "div",
+            { id: "main" },
+            React.createElement(
+                "h1",
+                null,
+                "AmphibzRank visualizer"
+            ),
+            React.createElement(
+                "div",
+                { id: "controls" },
+                React.createElement(
+                    "label",
+                    null,
+                    React.createElement(
+                        "div",
+                        null,
+                        "Network size: ",
+                        React.createElement(
+                            "b",
+                            null,
+                            networkSize
+                        )
+                    ),
+                    React.createElement("input", {
+                        type: "range",
+                        min: "3",
+                        max: "8",
+                        value: networkSize,
+                        onChange: e => this.setState({
+                            networkSize: parseInt(e.target.value)
+                        })
+                    })
+                ),
+                React.createElement(
+                    "label",
+                    null,
+                    React.createElement(
+                        "div",
+                        null,
+                        "Connectivity: ",
+                        React.createElement(
+                            "b",
+                            null,
+                            connectivity
+                        )
+                    ),
+                    React.createElement("input", {
+                        type: "range",
+                        min: "0.1",
+                        max: "0.5",
+                        step: "0.01",
+                        value: connectivity,
+                        onChange: e => this.setState({
+                            connectivity: parseFloat(e.target.value)
+                        })
+                    })
+                ),
+                React.createElement(
+                    "label",
+                    null,
+                    React.createElement(
+                        "div",
+                        null,
+                        "Step: ",
+                        React.createElement(
+                            "b",
+                            null,
+                            pageRankStep,
+                            "/",
+                            lastStep
+                        )
+                    ),
+                    React.createElement("input", {
+                        type: "range",
+                        min: 0,
+                        max: lastStep,
+                        value: pageRankStep,
+                        onChange: e => this.setState({
+                            pageRankStep: parseFloat(e.target.value)
+                        })
+                    })
+                ),
+                React.createElement(
+                    "div",
+                    null,
+                    React.createElement(
+                        "button",
+                        {
+                            disabled: pageRankStep === 0,
+                            onClick: () => this.setState({
+                                pageRankStep: 0
+                            })
+                        },
+                        "<<"
+                    ),
+                    React.createElement(
+                        "button",
+                        {
+                            disabled: pageRankStep === 0,
+                            onClick: () => this.setState({
+                                pageRankStep: pageRankStep - 1
+                            })
+                        },
+                        "<"
+                    ),
+                    React.createElement(
+                        "button",
+                        {
+                            disabled: pageRankStep === lastStep,
+                            onClick: () => this.setState({
+                                pageRankStep: pageRankStep + 1
+                            })
+                        },
+                        ">"
+                    ),
+                    React.createElement(
+                        "button",
+                        {
+                            disabled: pageRankStep === lastStep,
+                            onClick: () => this.setState({
+                                pageRankStep: lastStep
+                            })
+                        },
+                        ">>"
+                    )
+                )
+            ),
+            React.createElement("canvas", {
+                id: "canvas",
+                width: canvasSize,
+                height: canvasSize,
+                ref: x => {
+                    this.canvas = x;
+                }
+            }),
+            this.renderTable()
+        );
+    }
 }
 
 var appRoot;
 document.addEventListener("DOMContentLoaded", function () {
-  appRoot = document.getElementById("root");
-  doRender();
+    appRoot = document.getElementById("root");
+    doRender();
 });
 
 function doRender() {
-  render(React.createElement(App, null), appRoot);
+    render(React.createElement(App, null), appRoot);
 }
 
 window.Graph = Graph;
@@ -833,6 +895,9 @@ class PageRank {
 PageRank.findExample = (size, connectivity, minIterations = 3, maxIterations = 5) => {
 	while (true) {
 		const gr = Graph.getRandom(size, connectivity);
+		if (!gr.allNodesConnected()) {
+			continue;
+		}
 		const pr = new PageRank(gr);
 		while (true) {
 			pr.next();

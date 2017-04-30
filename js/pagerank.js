@@ -52,6 +52,9 @@ class PageRank {
 PageRank.findExample = (size, connectivity, minIterations=3, maxIterations=5) => {
 	while (true) {
 		const gr = Graph.getRandom(size, connectivity);
+		if (!gr.allNodesConnected()) {
+			continue;
+		}
 		const pr = new PageRank(gr);
 		while (true) {
 			pr.next();
